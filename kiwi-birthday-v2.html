@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Kiwi's Birthday 🎂</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500;600&family=Pacifico&display=swap" rel="stylesheet">
+<style>
+:root {
+  --pink: #ff6b9d;
+  --purple: #b44dff;
+  --teal: #00e5cc;
+  --gold: #ffd700;
+  --dark: #0d0d1a;
+  --card: rgba(255,255,255,0.06);
+  --border: rgba(255,255,255,0.12);
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html,body { height:100%; overflow:hidden; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--dark);
+  color: white;
+  position: relative;
+}
+
+/* ===== BG ===== */
+.bg-aurora {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 70% 50% at 15% 15%, rgba(180,77,255,0.25) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 85% 85%, rgba(255,107,157,0.22) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 60% at 50% 50%, rgba(0,229,204,0.07) 0%, transparent 70%);
+  animation: auroraShift 10s ease-in-out infinite alternate;
+}
+@keyframes auroraShift {
+  0%   { filter: hue-rotate(0deg) brightness(1); }
+  100% { filter: hue-rotate(25deg) brightness(1.15); }
+}
+
+canvas#stars { position:fixed; inset:0; z-index:0; pointer-events:none; }
+canvas#fireworks { position:fixed; inset:0; z-index:50; pointer-events:none; }
+
+/* ===== SCREENS ===== */
+.screen {
+  position: fixed; inset: 0; z-index: 10;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 1.5rem 1.2rem;
+  overflow-y: auto;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  transform: translateY(20px);
+}
+.screen.active {
+  opacity: 1; pointer-events: all; transform: translateY(0);
+}
+
+/* ===== CARD ===== */
+.card {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(24px);
+  border-radius: 28px;
+  width: 100%; max-width: 380px;
+  padding: 2rem 1.6rem;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+}
+
+/* ===== AVATAR ===== */
+.avatar-wrap { position:relative; width:100px; height:100px; margin:0 auto 1rem; }
+.avatar-ring {
+  position:absolute; inset:-4px; border-radius:50%;
+  background: conic-gradient(var(--pink),var(--purple),var(--teal),var(--pink));
+  animation: spin 3s linear infinite;
+}
+@keyframes spin { to { transform:rotate(360deg); } }
+.avatar-inner {
+  position:absolute; inset:4px; border-radius:50%;
+  background: var(--dark); overflow:hidden;
+}
+.avatar-inner img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
+
+/* ===== TYPOGRAPHY ===== */
+.name-text {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.6rem; font-weight:700;
+  background: linear-gradient(135deg, var(--pink), var(--purple));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  text-align:center;
+}
+.bio-text {
+  font-size:0.78rem; color:rgba(255,255,255,0.45);
+  font-style:italic; text-align:center; letter-spacing:0.05em;
+}
+.title-big {
+  font-family:'Pacifico',cursive;
+  font-size:clamp(2rem,7vw,3rem);
+  background: linear-gradient(135deg,var(--gold),var(--pink),var(--purple));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  text-align:center; animation: glow 2s ease-in-out infinite alternate;
+}
+@keyframes glow {
+  from { filter:drop-shadow(0 0 15px rgba(255,107,157,0.4)); }
+  to   { filter:drop-shadow(0 0 40px rgba(196,77,255,0.7)); }
+}
+
+/* ===== BUTTONS ===== */
+.btn {
+  display:inline-flex; align-items:center; justify-content:center; gap:0.5rem;
+  padding:0.85rem 2rem; border-radius:50px; border:none; cursor:pointer;
+  font-family:'DM Sans',sans-serif; font-size:1rem; font-weight:600;
+  transition: transform 0.15s, box-shadow 0.2s;
+  width:100%; max-width:280px;
+}
+.btn:active { transform:scale(0.95); }
+.btn-primary {
+  background: linear-gradient(135deg,var(--pink),var(--purple));
+  color:white; box-shadow:0 8px 24px rgba(255,107,157,0.35);
+}
+.btn-primary:hover { box-shadow:0 12px 32px rgba(255,107,157,0.5); }
+.btn-secondary {
+  background: rgba(255,255,255,0.08);
+  color:white; border:1px solid var(--border);
+}
+.btn-teal {
+  background: linear-gradient(135deg,var(--teal),#00b4d8);
+  color:#0d0d1a; box-shadow:0 8px 24px rgba(0,229,204,0.3);
+}
+
+/* ===== DIVIDER ===== */
+.divider { width:60px; height:1px; background:linear-gradient(90deg,transparent,var(--pink),transparent); margin:0.8rem auto; }
+
+/* ===== SCREEN 1: INTRO ===== */
+#s1 { gap:1.5rem; }
+.intro-card { text-align:center; }
+.floating-emojis { display:flex; gap:0.8rem; justify-content:center; flex-wrap:wrap; }
+.fe { font-size:1.8rem; animation:floatEm var(--d) ease-in-out infinite alternate; }
+@keyframes floatEm {
+  from { transform:translateY(0) rotate(-5deg); }
+  to   { transform:translateY(-10px) rotate(5deg); }
+}
+
+/* ===== SCREEN 2: GAME ===== */
+#s2 { gap:1rem; justify-content:flex-start; padding-top:3rem; }
+.game-header { text-align:center; }
+.game-title { font-size:1.4rem; font-weight:700; color:white; }
+.score-bar {
+  display:flex; justify-content:space-between; align-items:center;
+  background:rgba(255,255,255,0.05); border-radius:12px;
+  padding:0.7rem 1.2rem; border:1px solid var(--border);
+  width:100%; max-width:380px;
+}
+.score-val { font-size:1.5rem; font-weight:700; color:var(--gold); }
+.timer-val { font-size:1.5rem; font-weight:700; color:var(--teal); }
+.balloon-area {
+  position:relative;
+  width:100%; max-width:380px; height:340px;
+  background:rgba(255,255,255,0.03);
+  border:1px solid var(--border); border-radius:24px;
+  overflow:hidden;
+}
+.balloon {
+  position:absolute; width:48px; height:58px;
+  display:flex; flex-direction:column; align-items:center;
+  cursor:pointer; user-select:none;
+  animation: floatUp var(--spd) linear forwards;
+  bottom: -70px;
+}
+.balloon-body {
+  width:48px; height:52px; border-radius:50% 50% 50% 50% / 60% 60% 40% 40%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:1.4rem; box-shadow:inset -8px -8px 16px rgba(0,0,0,0.2), 0 4px 16px rgba(0,0,0,0.3);
+  transition:transform 0.1s;
+}
+.balloon-body:active { transform:scale(0.8); }
+.balloon-string { width:1px; height:10px; background:rgba(255,255,255,0.4); }
+@keyframes floatUp {
+  0%   { bottom:-70px; opacity:1; }
+  90%  { opacity:1; }
+  100% { bottom:110%; opacity:0; }
+}
+.pop-text {
+  position:absolute; font-size:1.5rem; font-weight:700;
+  color:var(--gold); pointer-events:none;
+  animation: popUp 0.6s ease-out forwards;
+  z-index:99;
+}
+@keyframes popUp {
+  0%   { transform:translateY(0) scale(1); opacity:1; }
+  100% { transform:translateY(-40px) scale(1.5); opacity:0; }
+}
+.game-msg { text-align:center; font-size:0.85rem; color:rgba(255,255,255,0.5); }
+
+/* ===== SCREEN 3: TASKS ===== */
+#s3 { gap:1rem; }
+.tasks-header { text-align:center; }
+.task-item {
+  display:flex; align-items:center; gap:1rem;
+  background:rgba(255,255,255,0.05); border:1px solid var(--border);
+  border-radius:16px; padding:1rem 1.2rem; cursor:pointer;
+  transition:background 0.3s, border-color 0.3s, transform 0.15s;
+  width:100%; max-width:380px; user-select:none;
+}
+.task-item:active { transform:scale(0.97); }
+.task-item.done {
+  background:rgba(0,229,204,0.08); border-color:rgba(0,229,204,0.3);
+}
+.task-check {
+  width:32px; height:32px; border-radius:50%; border:2px solid var(--border);
+  display:flex; align-items:center; justify-content:center;
+  font-size:1rem; flex-shrink:0; transition:all 0.3s;
+}
+.task-item.done .task-check { background:var(--teal); border-color:var(--teal); color:#0d0d1a; }
+.task-label { font-size:0.95rem; font-weight:500; }
+.task-sub { font-size:0.75rem; color:rgba(255,255,255,0.4); margin-top:0.15rem; }
+.task-item.done .task-label { color:var(--teal); }
+.progress-wrap { width:100%; max-width:380px; }
+.progress-track {
+  height:6px; background:rgba(255,255,255,0.08);
+  border-radius:6px; overflow:hidden;
+}
+.progress-fill {
+  height:100%; border-radius:6px;
+  background:linear-gradient(90deg,var(--teal),var(--purple));
+  transition:width 0.5s cubic-bezier(0.34,1.56,0.64,1);
+}
+
+/* ===== SCREEN 4: WISHES ===== */
+#s4 { gap:1rem; }
+.wish-card {
+  background:rgba(255,255,255,0.05); border:1px solid var(--border);
+  border-radius:20px; padding:1.4rem; text-align:center; cursor:pointer;
+  width:100%; max-width:380px; min-height:110px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0.5rem;
+  transition:transform 0.15s;
+  user-select:none;
+}
+.wish-card:active { transform:scale(0.97); }
+.wish-card.pop { animation:cardPop 0.4s cubic-bezier(0.34,1.56,0.64,1); }
+@keyframes cardPop { 0%{transform:scale(0.9);opacity:0.5} 100%{transform:scale(1);opacity:1} }
+.wish-emoji-big { font-size:2.4rem; animation:wobble 2s ease-in-out infinite alternate; }
+@keyframes wobble {
+  from { transform:rotate(-5deg) scale(1); }
+  to   { transform:rotate(5deg) scale(1.1); }
+}
+.wish-txt { font-family:'Playfair Display',serif; font-size:0.98rem; font-style:italic; line-height:1.55; color:rgba(255,255,255,0.9); }
+.dots-row { display:flex; gap:5px; justify-content:center; }
+.wdot { width:7px; height:7px; border-radius:50%; background:rgba(255,255,255,0.15); transition:all 0.3s; }
+.wdot.active { background:var(--pink); transform:scale(1.4); }
+.tap-hint { font-size:0.72rem; color:rgba(255,255,255,0.3); letter-spacing:0.1em; animation:blink 2s infinite; }
+@keyframes blink { 0%,100%{opacity:0.3} 50%{opacity:0.8} }
+
+/* ===== SCREEN 5: FINAL ===== */
+#s5 { gap:1.2rem; }
+.final-card { text-align:center; }
+.hearts-rain { font-size:2rem; animation:heartFloat 1.5s ease-out forwards; opacity:0; }
+@keyframes heartFloat {
+  0%  { transform:scale(0) rotate(-20deg); opacity:0; }
+  60% { transform:scale(1.2) rotate(10deg); opacity:1; }
+  100%{ transform:scale(1) rotate(0deg); opacity:1; }
+}
+
+/* ===== GAME RESULT ===== */
+.result-badge {
+  text-align:center; padding:0.6rem 1.4rem;
+  background:rgba(255,215,0,0.12); border:1px solid rgba(255,215,0,0.3);
+  border-radius:50px; color:var(--gold); font-weight:600; font-size:0.9rem;
+}
+
+/* ===== PARTICLES ===== */
+.particle {
+  position:fixed; pointer-events:none; z-index:60; border-radius:50%;
+  animation:particleFly 0.8s ease-out forwards;
+}
+@keyframes particleFly {
+  0%   { transform:translate(0,0) scale(1); opacity:1; }
+  100% { transform:translate(var(--tx),var(--ty)) scale(0); opacity:0; }
+}
+
+/* ===== NAV DOTS ===== */
+.nav-dots {
+  position:fixed; bottom:1.2rem; left:50%; transform:translateX(-50%);
+  display:flex; gap:8px; z-index:20;
+}
+.ndot {
+  width:8px; height:8px; border-radius:50%;
+  background:rgba(255,255,255,0.2); transition:all 0.3s;
+}
+.ndot.on { background:var(--pink); transform:scale(1.4); }
+</style>
+</head>
+<body>
+<div class="bg-aurora"></div>
+<canvas id="stars"></canvas>
+<canvas id="fireworks"></canvas>
+
+<!-- NAV DOTS -->
+<div class="nav-dots" id="navDots">
+  <div class="ndot on"></div>
+  <div class="ndot"></div>
+  <div class="ndot"></div>
+  <div class="ndot"></div>
+  <div class="ndot"></div>
+</div>
+
+<!-- ===== SCREEN 1: INTRO ===== -->
+<div class="screen active" id="s1">
+  <div class="title-big">Happy Birthday!</div>
+
+  <div class="card intro-card" style="text-align:center; display:flex; flex-direction:column; align-items:center; gap:1rem; max-width:380px; width:100%;">
+    <div class="avatar-wrap">
+      <div class="avatar-ring"></div>
+      <div class="avatar-inner">
+        <img src="https://files.catbox.moe/kpc70u.jpg" alt="Kiwi">
+      </div>
+    </div>
+    <div class="name-text">㊣┆Ꮶ𝛊𝛚𝛊 &lt;/𝟑</div>
+    <div class="bio-text">ιт'ѕ ησт тнє ѕαмє αѕ ιт ωαѕ</div>
+    <div class="divider"></div>
+    <p style="font-size:0.9rem; color:rgba(255,255,255,0.6); line-height:1.6;">
+      Today is YOUR day, Kiwi! 🌸<br>
+      A birthday adventure awaits you —<br>
+      <span style="color:var(--pink);">games, tasks & special wishes!</span>
+    </p>
+    <div class="floating-emojis">
+      <span class="fe" style="--d:2.1s">🎈</span>
+      <span class="fe" style="--d:1.8s">🎂</span>
+      <span class="fe" style="--d:2.4s">🎁</span>
+      <span class="fe" style="--d:1.6s">✨</span>
+      <span class="fe" style="--d:2.6s">🌸</span>
+    </div>
+    <button class="btn btn-primary" onclick="goTo(2)">Start the Adventure 🎉</button>
+  </div>
+  <p style="font-size:0.72rem; color:rgba(255,255,255,0.2); margin-top:0.5rem;">made with chaos + love 🍵</p>
+</div>
+
+<!-- ===== SCREEN 2: BALLOON GAME ===== -->
+<div class="screen" id="s2">
+  <div class="game-header" style="width:100%;max-width:380px;">
+    <div class="game-title">🎈 Pop the Balloons!</div>
+    <p style="font-size:0.8rem;color:rgba(255,255,255,0.45);margin-top:0.2rem;">Tap as many as you can in 20 seconds!</p>
+  </div>
+
+  <div class="score-bar">
+    <div>
+      <div style="font-size:0.7rem;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.1em;">Score</div>
+      <div class="score-val" id="scoreVal">0</div>
+    </div>
+    <div style="font-size:1.8rem" id="gameEmoji">🎈</div>
+    <div style="text-align:right">
+      <div style="font-size:0.7rem;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.1em;">Time</div>
+      <div class="timer-val" id="timerVal">20</div>
+    </div>
+  </div>
+
+  <div class="balloon-area" id="balloonArea"></div>
+
+  <p class="game-msg" id="gameMsg">Get ready... 🎯</p>
+  <button class="btn btn-secondary" id="startBtn" onclick="startGame()">▶ Start Game</button>
+</div>
+
+<!-- ===== SCREEN 3: TASKS ===== -->
+<div class="screen" id="s3">
+  <div class="tasks-header" style="width:100%;max-width:380px;text-align:center">
+    <div style="font-size:0.75rem;letter-spacing:0.15em;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:0.3rem;">Birthday Challenges</div>
+    <div style="font-size:1.4rem;font-weight:700;">Complete to unlock wishes 🔓</div>
+  </div>
+
+  <div class="progress-wrap">
+    <div style="display:flex;justify-content:space-between;margin-bottom:0.4rem;">
+      <span style="font-size:0.78rem;color:rgba(255,255,255,0.4);">Progress</span>
+      <span style="font-size:0.78rem;color:var(--teal)" id="taskCount">0 / 4</span>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="taskProgress" style="width:0%"></div></div>
+  </div>
+
+  <div class="task-item" id="t1" onclick="doTask(1)">
+    <div class="task-check" id="tc1">🎂</div>
+    <div>
+      <div class="task-label">Blow the candles!</div>
+      <div class="task-sub">Hold the button for 3 seconds</div>
+    </div>
+  </div>
+
+  <div class="task-item" id="t2" onclick="doTask(2)">
+    <div class="task-check" id="tc2">💌</div>
+    <div>
+      <div class="task-label">Send birthday love</div>
+      <div class="task-sub">Triple-tap this card fast!</div>
+    </div>
+  </div>
+
+  <div class="task-item" id="t3" onclick="doTask(3)">
+    <div class="task-check" id="tc3">🌟</div>
+    <div>
+      <div class="task-label">Make a birthday wish</div>
+      <div class="task-sub">Tap 10 times on this card</div>
+    </div>
+  </div>
+
+  <div class="task-item" id="t4" onclick="doTask(4)">
+    <div class="task-check" id="tc4">🎊</div>
+    <div>
+      <div class="task-label">Do a happy dance!</div>
+      <div class="task-sub">Shake your phone or tap rapidly</div>
+    </div>
+  </div>
+
+  <button class="btn btn-teal" id="taskNextBtn" style="opacity:0.3;pointer-events:none;" onclick="goTo(4)">
+    Unlock Wishes ✨
+  </button>
+</div>
+
+<!-- ===== SCREEN 4: WISHES ===== -->
+<div class="screen" id="s4">
+  <div style="text-align:center;width:100%;max-width:380px;">
+    <div style="font-size:0.75rem;letter-spacing:0.15em;color:rgba(255,255,255,0.4);text-transform:uppercase">Your Wishes 💫</div>
+    <div style="font-size:1.3rem;font-weight:700;margin-top:0.2rem;">From the universe to you, Kiwi</div>
+  </div>
+
+  <div class="wish-card" id="wishCard" onclick="nextWish(event)">
+    <span class="wish-emoji-big" id="wEmoji">🎂</span>
+    <p class="wish-txt" id="wText">Wishing you a birthday as beautiful as your smile, Kiwi. You deserve every good thing! 🌸</p>
+  </div>
+
+  <div class="dots-row" id="wDots"></div>
+  <p class="tap-hint">✦ tap the card to reveal more ✦</p>
+
+  <button class="btn btn-primary" onclick="goTo(5)" style="margin-top:0.5rem;">
+    Grand Finale 🎆
+  </button>
+</div>
+
+<!-- ===== SCREEN 5: FINAL ===== -->
+<div class="screen" id="s5">
+  <div class="title-big" style="font-size:clamp(1.8rem,6vw,2.8rem);">You're Amazing! 👑</div>
+
+  <div class="card final-card" style="max-width:380px;width:100%;display:flex;flex-direction:column;align-items:center;gap:1rem;">
+    <div class="avatar-wrap">
+      <div class="avatar-ring"></div>
+      <div class="avatar-inner">
+        <img src="https://files.catbox.moe/kpc70u.jpg" alt="Kiwi">
+      </div>
+    </div>
+    <div class="name-text">㊣┆Ꮶ𝛊𝛚𝛊 &lt;/𝟑</div>
+    <div class="divider"></div>
+
+    <div id="gameResultBadge" class="result-badge" style="display:none"></div>
+
+    <p style="font-size:0.95rem;line-height:1.7;color:rgba(255,255,255,0.8);font-family:'Playfair Display',serif;font-style:italic;text-align:center;">
+      "May every day of your new year be filled with joy, laughter, and all the love you give to others — reflected back to you tenfold.
+      Happy Birthday, Kiwi. 🌙✨"
+    </p>
+
+    <div style="display:flex;flex-wrap:wrap;gap:0.5rem;justify-content:center;font-size:1.6rem;">
+      🎈🎂🎁🌸💫🎊🥂🌙✨💕
+    </div>
+
+    <button class="btn btn-primary" onclick="launchFireworks()">🎆 Launch Fireworks!</button>
+    <button class="btn btn-secondary" onclick="goTo(1)" style="margin-top:0.2rem;">↩ Start Over</button>
+  </div>
+</div>
+
+<script>
+// ===== STARS =====
+const starCanvas = document.getElementById('stars');
+const sc = starCanvas.getContext('2d');
+starCanvas.width = window.innerWidth; starCanvas.height = window.innerHeight;
+const stars2 = Array.from({length:150},()=>({
+  x:Math.random()*starCanvas.width, y:Math.random()*starCanvas.height,
+  r:Math.random()*1.8+0.3, a:Math.random(), da:Math.random()*0.01+0.003
+}));
+function drawStars(){
+  sc.clearRect(0,0,starCanvas.width,starCanvas.height);
+  stars2.forEach(s=>{
+    s.a+=s.da; if(s.a>1||s.a<0)s.da*=-1;
+    sc.beginPath(); sc.arc(s.x,s.y,s.r,0,Math.PI*2);
+    sc.fillStyle=`rgba(255,255,255,${s.a})`; sc.fill();
+  });
+  requestAnimationFrame(drawStars);
+}
+drawStars();
+
+// ===== SCREENS =====
+let currentScreen = 1;
+function goTo(n){
+  document.getElementById('s'+currentScreen).classList.remove('active');
+  currentScreen = n;
+  document.getElementById('s'+n).classList.add('active');
+  updateNavDots();
+  if(n===4) initWishes();
+  if(n===5) showFinal();
+}
+function updateNavDots(){
+  document.querySelectorAll('.ndot').forEach((d,i)=>{
+    d.classList.toggle('on', i===currentScreen-1);
+  });
+}
+
+// ===== BALLOON GAME =====
+let score=0, gameTimer=null, balloonInterval=null, gameRunning=false, timeLeft=20;
+const balloonEmojis=['🎈','🎀','🎁','🌸','💫','⭐','🍭','🦋'];
+const balloonColors=['#ff6b9d','#b44dff','#00e5cc','#ffd700','#ff9ef5','#7de8ff'];
+
+function startGame(){
+  score=0; timeLeft=20; gameRunning=true;
+  document.getElementById('scoreVal').textContent='0';
+  document.getElementById('timerVal').textContent='20';
+  document.getElementById('startBtn').style.display='none';
+  document.getElementById('gameMsg').textContent='Pop! Pop! Pop! 💥';
+  document.getElementById('balloonArea').innerHTML='';
+
+  gameTimer = setInterval(()=>{
+    timeLeft--;
+    document.getElementById('timerVal').textContent=timeLeft;
+    if(timeLeft<=0){ endGame(); }
+  },1000);
+
+  balloonInterval = setInterval(spawnBalloon, 800);
+  spawnBalloon(); spawnBalloon();
+}
+
+function spawnBalloon(){
+  if(!gameRunning) return;
+  const area = document.getElementById('balloonArea');
+  const rect = area.getBoundingClientRect();
+  const b = document.createElement('div');
+  b.className='balloon';
+  const spd = Math.random()*4+3;
+  const left = Math.random()*(rect.width-60)+10;
+  b.style.cssText=`left:${left}px;--spd:${spd}s;`;
+  const color = balloonColors[Math.floor(Math.random()*balloonColors.length)];
+  const emoji = balloonEmojis[Math.floor(Math.random()*balloonEmojis.length)];
+  b.innerHTML=`
+    <div class="balloon-body" style="background:${color};" onclick="popBalloon(this,event)">${emoji}</div>
+    <div class="balloon-string"></div>`;
+  area.appendChild(b);
+  setTimeout(()=>{ if(b.parentNode)b.remove(); }, spd*1000);
+}
+
+function popBalloon(el, e){
+  if(!gameRunning) return;
+  score++;
+  document.getElementById('scoreVal').textContent=score;
+  const area = document.getElementById('balloonArea');
+  const aRect = area.getBoundingClientRect();
+  const pop = document.createElement('div');
+  pop.className='pop-text';
+  pop.textContent='+1 💥';
+  pop.style.left=(e.clientX - aRect.left)+'px';
+  pop.style.top=(e.clientY - aRect.top)+'px';
+  area.appendChild(pop);
+  setTimeout(()=>pop.remove(),600);
+  el.parentElement.remove();
+  spawnParticles(e.clientX, e.clientY);
+}
+
+function endGame(){
+  gameRunning=false;
+  clearInterval(gameTimer); clearInterval(balloonInterval);
+  document.getElementById('balloonArea').innerHTML='';
+  document.getElementById('gameMsg').textContent=`Amazing! You scored ${score} points! 🎉`;
+  document.getElementById('startBtn').style.display='flex';
+  document.getElementById('startBtn').textContent='▶ Play Again';
+  sessionStorage.setItem('gameScore', score);
+  setTimeout(()=>{
+    if(currentScreen===2) {
+      document.getElementById('startBtn').innerHTML='Next: Birthday Tasks →';
+      document.getElementById('startBtn').onclick=()=>goTo(3);
+    }
+  },1500);
+}
+
+// ===== TASKS =====
+let tasksDone=new Set(), taskTaps={3:0,4:0}, taskHold=null;
+function doTask(n){
+  if(tasksDone.has(n)) return;
+
+  if(n===1){
+    // Hold for 3 seconds
+    const el = document.getElementById('t1');
+    if(taskHold) return;
+    el.style.borderColor='var(--pink)';
+    let held=0;
+    const hInterval = setInterval(()=>{
+      held+=0.1;
+      el.querySelector('.task-sub').textContent=`Holding... ${Math.min(100,Math.round(held/3*100))}%`;
+      if(held>=3){ clearInterval(hInterval); completeTask(1); }
+    },100);
+    taskHold = hInterval;
+    document.addEventListener('touchend',()=>{ clearInterval(hInterval); taskHold=null; el.querySelector('.task-sub').textContent='Hold the button for 3 seconds'; el.style.borderColor=''; },{once:true});
+    document.addEventListener('mouseup',()=>{ clearInterval(hInterval); taskHold=null; el.querySelector('.task-sub').textContent='Hold the button for 3 seconds'; el.style.borderColor=''; },{once:true});
+
+  } else if(n===2){
+    // Triple tap — track clicks
+    if(!window._t2clicks) window._t2clicks=0;
+    if(!window._t2timer) {
+      window._t2timer = setTimeout(()=>{ window._t2clicks=0; window._t2timer=null; },800);
+    }
+    window._t2clicks++;
+    if(window._t2clicks>=3){ clearTimeout(window._t2timer); window._t2clicks=0; window._t2timer=null; completeTask(2); }
+
+  } else if(n===3){
+    // 10 taps
+    taskTaps[3]=(taskTaps[3]||0)+1;
+    document.getElementById('t'+n).querySelector('.task-sub').textContent=`${taskTaps[3]} / 10 taps`;
+    if(taskTaps[3]>=10) completeTask(3);
+
+  } else if(n===4){
+    // rapid taps
+    taskTaps[4]=(taskTaps[4]||0)+1;
+    document.getElementById('t'+n).querySelector('.task-sub').textContent=`Tapping... ${taskTaps[4]} / 8`;
+    if(taskTaps[4]>=8) completeTask(4);
+  }
+}
+
+function completeTask(n){
+  tasksDone.add(n);
+  const el = document.getElementById('t'+n);
+  el.classList.add('done');
+  document.getElementById('tc'+n).textContent='✓';
+  spawnParticles(window.innerWidth/2, window.innerHeight/2);
+
+  const done=tasksDone.size;
+  document.getElementById('taskCount').textContent=`${done} / 4`;
+  document.getElementById('taskProgress').style.width=`${done/4*100}%`;
+
+  if(done===4){
+    const btn=document.getElementById('taskNextBtn');
+    btn.style.opacity='1'; btn.style.pointerEvents='all';
+    btn.style.animation='glow 1s ease-in-out infinite alternate';
+  }
+}
+
+// ===== WISHES =====
+const wishes=[
+  {e:'🎂',t:"Wishing you a birthday as beautiful as your smile, Kiwi. You deserve every good thing! 🌸"},
+  {e:'🌟',t:"May every dream you've been quietly holding finally bloom this year. You've earned it! ✨"},
+  {e:'💕',t:"Another year of being absolutely iconic — here's to you, Kiwi. Keep shining always! 💫"},
+  {e:'🎁',t:"May this birthday bring joy, chaos (the good kind), laughter & everything your heart wishes for! 🎊"},
+  {e:'🌸',t:"You make the world brighter just by being in it. Stay iconic, stay you. Happy Birthday! 👑"},
+  {e:'🥂',t:"Here's to new adventures, better days & a year that finally matches your energy! Cheers! 🌙"},
+  {e:'✨',t:"The universe took its time making someone as special as you. Today we celebrate THAT. Happy Birthday! 💖"},
+];
+let wCurrent=0;
+function initWishes(){
+  wCurrent=0;
+  const dots=document.getElementById('wDots');
+  dots.innerHTML='';
+  wishes.forEach((_,i)=>{
+    const d=document.createElement('div');
+    d.className='wdot'+(i===0?' active':'');
+    dots.appendChild(d);
+  });
+  document.getElementById('wEmoji').textContent=wishes[0].e;
+  document.getElementById('wText').textContent=wishes[0].t;
+}
+function nextWish(e){
+  wCurrent=(wCurrent+1)%wishes.length;
+  const card=document.getElementById('wishCard');
+  card.classList.remove('pop'); void card.offsetWidth; card.classList.add('pop');
+  document.getElementById('wEmoji').textContent=wishes[wCurrent].e;
+  document.getElementById('wText').textContent=wishes[wCurrent].t;
+  document.querySelectorAll('.wdot').forEach((d,i)=>d.classList.toggle('active',i===wCurrent));
+  spawnParticles(e.clientX,e.clientY);
+}
+
+// ===== FINAL =====
+function showFinal(){
+  const score=sessionStorage.getItem('gameScore')||'?';
+  const badge=document.getElementById('gameResultBadge');
+  badge.style.display='inline-flex';
+  badge.textContent=`🎈 You popped ${score} balloons!`;
+  setTimeout(launchFireworks, 800);
+}
+
+// ===== FIREWORKS =====
+const fwCanvas=document.getElementById('fireworks');
+const fwCtx=fwCanvas.getContext('2d');
+fwCanvas.width=window.innerWidth; fwCanvas.height=window.innerHeight;
+let fwParticles=[], fwRunning=false, fwFrame=null;
+
+function launchFireworks(){
+  fwRunning=true; fwParticles=[];
+  const colors2=['#ff6b9d','#b44dff','#ffd700','#00e5cc','#ff9ef5','#7de8ff','#ff5e7e'];
+  for(let i=0;i<6;i++){
+    setTimeout(()=>{
+      const x=Math.random()*fwCanvas.width;
+      const y=Math.random()*fwCanvas.height*0.6+50;
+      for(let j=0;j<40;j++){
+        const angle=Math.random()*Math.PI*2;
+        const speed=Math.random()*5+2;
+        fwParticles.push({
+          x,y,vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed,
+          color:colors2[Math.floor(Math.random()*colors2.length)],
+          r:Math.random()*3+1, life:1
+        });
+      }
+    },i*300);
+  }
+  if(!fwFrame) animFW();
+  setTimeout(()=>{fwRunning=false;},3000);
+}
+
+function animFW(){
+  fwCtx.clearRect(0,0,fwCanvas.width,fwCanvas.height);
+  fwParticles=fwParticles.filter(p=>p.life>0);
+  fwParticles.forEach(p=>{
+    p.x+=p.vx; p.y+=p.vy; p.vy+=0.1; p.life-=0.018;
+    fwCtx.globalAlpha=p.life;
+    fwCtx.beginPath(); fwCtx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    fwCtx.fillStyle=p.color; fwCtx.fill();
+  });
+  fwCtx.globalAlpha=1;
+  if(fwParticles.length>0||fwRunning){ fwFrame=requestAnimationFrame(animFW); }
+  else { fwCtx.clearRect(0,0,fwCanvas.width,fwCanvas.height); fwFrame=null; }
+}
+
+// ===== PARTICLES =====
+function spawnParticles(x,y){
+  const cols=['#ff6b9d','#b44dff','#ffd700','#00e5cc','#ff9ef5'];
+  for(let i=0;i<8;i++){
+    const p=document.createElement('div');
+    p.className='particle';
+    const angle=(Math.PI*2/8)*i;
+    const dist=Math.random()*60+30;
+    const size=Math.random()*8+4;
+    p.style.cssText=`
+      left:${x}px; top:${y}px;
+      width:${size}px; height:${size}px;
+      background:${cols[i%cols.length]};
+      --tx:${Math.cos(angle)*dist}px;
+      --ty:${Math.sin(angle)*dist}px;
+      animation-delay:${Math.random()*0.1}s;
+    `;
+    document.body.appendChild(p);
+    setTimeout(()=>p.remove(),900);
+  }
+}
+
+// Shake detect for task 4
+window.addEventListener('devicemotion', e=>{
+  if(currentScreen!==3||tasksDone.has(4)) return;
+  const acc=e.accelerationIncludingGravity;
+  if(!acc) return;
+  const total=Math.abs(acc.x)+Math.abs(acc.y)+Math.abs(acc.z);
+  if(total>25) doTask(4);
+});
+</script>
+</body>
+</html>
